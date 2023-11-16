@@ -54,7 +54,6 @@ if (!array_key_exists("state",$_REQUEST)) {
                     <td>".$child["name"]."</td><td>".$child["birth_date"]."</td><td>".$child["tutor_name"]."</td><td>".$child["tutor_phone"]."</td><td>".$child["tutor_email"]."</td><td>
                 
             ";
-            // Reformular para: Pegar todas as Item c/ values > Escrever Item > Pegar todos os values > Escrever Val 
 
             $queryItems = "SELECT DISTINCT i.name AS name, i.id as id FROM item AS i, subitem AS si, value AS v WHERE v.subitem_id = si.id AND i.id = si.item_id AND v.child_id = ".$child["id"]." ORDER BY subitem_id ASC";
             $items = mysqli_query($sql, $queryItems);
@@ -161,10 +160,10 @@ if (!array_key_exists("state",$_REQUEST)) {
 
             <br>
         ";
-        goBack();
     } else { // Dadods inválidos
         echo $dataErrors;
     }
+    goBack();
 } elseif ($_REQUEST['state'] == "insertData") {
 
     echo "<h3>Dados de registo - inserção</h3>";
