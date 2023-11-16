@@ -1,6 +1,5 @@
 <?php
 require_once("custom/php/common.php");
-$sql = connectDB();
 
 function validade_input($data, $type) {
     if (empty($data)) {
