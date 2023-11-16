@@ -7,18 +7,19 @@ function validade_input($data, $type) {
         return "Campo obrigatório em falta<br>";
     }
     if($type == "name") {
-        if (preg_match("~[0-9]~", $data)) {
+        if (!preg_match("/^[\p{L}]+$/u", $data)) {
             return "Apenas letras e espaços são permitidos no nome.<br>";
         }
     } elseif($type == "date") {
-        if (!strtotime($data))
+        $time = strtotime($data);
+        if (!preg_match("/^([2-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", $data) || !$time || $time<(-1580688000))
             return "Data inválida<br>";
     } elseif($type == "email") {
         if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
             return "E-mail em formato inválido.<br>";
         }
-    } elseif($type == "phone") {
-        if (!preg_match("/^\d{9}$/",$data)) {
+    } elseif($type == "phone") { // verificar melhor
+        if (!preg_match("/^[0-9]{9}$/",$data)) {
             return "Apenas são permitidos 9 números.<br>";
         }
     }
@@ -38,9 +39,7 @@ if (!array_key_exists("state",$_REQUEST)) {
     $queryChilds = "SELECT * from child ORDER BY name ASC";
     $childs = mysqli_query($sql, $queryChilds);
     if (mysqli_num_rows($childs) == 0) {
-        echo "
-            <h3>Não existem crianças</h3>
-        ";
+        echo "<h3>Não existem crianças</h3>";
     } else {
         echo "
             <table>
@@ -62,8 +61,8 @@ if (!array_key_exists("state",$_REQUEST)) {
                 $queryEdits = "
                 SELECT DISTINCT v.date AS date, v.producer as author
                 FROM value AS v, subitem AS si WHERE
-                    v.child_id = ".$child["id"]." AND
-                    si.item_id = ".$item["id"]." AND
+                    v.child_id = '".$child["id"]."' AND
+                    si.item_id = '".$item["id"]."' AND
                     si.id = v.subitem_id
                 ORDER BY si.name ASC
                 ";
@@ -76,10 +75,10 @@ if (!array_key_exists("state",$_REQUEST)) {
                     FROM subitem AS si, value AS v, subitem_unit_type AS si_type
                     WHERE
                         v.date = '".$edit["date"]."' AND
-                        si.item_id = ".$item["id"]." AND
+                        si.item_id = '".$item["id"]."' AND
                         si_type.id = si.unit_type_id AND
                         si.id = v.subitem_id AND
-                        v.child_id = ".$child["id"]."
+                        v.child_id = '".$child["id"]."'
                     ORDER BY si.name ASC
                     ";
                     $values = mysqli_query($sql, $queryValues);
@@ -128,7 +127,7 @@ if (!array_key_exists("state",$_REQUEST)) {
     $dataErrors = validade_input($data["fullname_child"], "name");
     $dataErrors .= validade_input($data["birthdate"], "date");
     $dataErrors .= validade_input($data["fullname_tutor"], "name");
-    $dataErrors .= validade_input($data["cellphone"], "number");
+    $dataErrors .= validade_input($data["cellphone"], "phone");
     if (!empty($data["email"])) {
         $dataErrors .= validade_input($data["email"],"email");
     }
