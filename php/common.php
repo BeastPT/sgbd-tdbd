@@ -28,4 +28,17 @@ function connectDB() {
 
     return $connection;
 }
+
+$sql = connectDB();
+
+function get_enum_values($table, $column )
+{
+    $query = " SHOW COLUMNS FROM `$table` LIKE '$column' ";
+    $result = mysqli_query($sql, $query );
+    $row = mysqli_fetch_array($result , MYSQLI_NUM );
+    $regex = "/'(.*?)'/";
+    preg_match_all( $regex , $row[1], $enum_array );
+    $enum_fields = $enum_array[1];
+    return( $enum_fields );
+}
 ?>
