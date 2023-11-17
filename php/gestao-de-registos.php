@@ -1,25 +1,25 @@
 <?php
 require_once("custom/php/common.php");
 
-function validade_input($data, $type) {
+function validade_input($data, $type, $field) {
     if (empty($data)) {
-        return "Campo obrigatório em falta<br>";
+        return "<strong>'$field'</strong>' é obrigatório e está em falta<br>";
     }
     if($type == "name") {
         if (!preg_match("/^[\p{L}]+$/u", $data)) {
-            return "Apenas letras e espaços são permitidos no nome.<br>";
+            return "Apenas letras e espaços são permitidos no <strong>'$field'</strong>.<br>";
         }
     } elseif($type == "date") {
         $time = strtotime($data);
         if (!preg_match("/^([2-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", $data) || !$time || $time<(-1580688000))
-            return "Data inválida<br>";
+            return "Data inválida no campo <strong>'$field'</strong>.<br>";
     } elseif($type == "email") {
         if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
-            return "E-mail em formato inválido.<br>";
+            return "E-mail em formato inválido no campo <strong>'$field'</strong>.<br>";
         }
     } elseif($type == "phone") { // verificar melhor
         if (!preg_match("/^[0-9]{9}$/",$data)) {
-            return "Apenas são permitidos 9 números.<br>";
+            return "Apenas são permitidos 9 números no campo <strong>'$field'</strong>.<br>";
         }
     }
 }
@@ -34,7 +34,7 @@ if (!verifyCapability("manage_records")){
     die("Não tem autorização para aceder a esta página");
 }
 
-if (!array_key_exists("state",$_REQUEST)) {
+if (!array_key_exists("estado", $_REQUEST)) {
     $queryChilds = "SELECT * from child ORDER BY name ASC";
     $childs = mysqli_query($sql, $queryChilds);
     if (mysqli_num_rows($childs) == 0) {
@@ -112,23 +112,23 @@ if (!array_key_exists("state",$_REQUEST)) {
             <input id ='cellphone' type='text' name='cellphone' size='9'><br>
             <label for='email'>Endereço de e-mail do tutor: </label><br>
             <input id ='email' type='text' name='email' placeholder='example@mail.com'><br>
-            <input type='hidden' name='state' value='confirmData'>
+            <input type='hidden' name='estado' value='validar'>
             <input type='submit' value='Submeter'>
         </form>
     ";
-} elseif ($_REQUEST['state'] == "confirmData") {
+} elseif ($_REQUEST['estado'] == "validar") {
     // Validar os dados
     $data = [];
     foreach ($_REQUEST as $key => $value) {
         $data[$key] = test_input($value);
     }
 
-    $dataErrors = validade_input($data["fullname_child"], "name");
-    $dataErrors .= validade_input($data["birthdate"], "date");
-    $dataErrors .= validade_input($data["fullname_tutor"], "name");
-    $dataErrors .= validade_input($data["cellphone"], "phone");
+    $dataErrors = validade_input($data["fullname_child"], "name", "Nome completo");
+    $dataErrors .= validade_input($data["birthdate"], "date", "Data de Nascimento (AAAA-MM-DD)");
+    $dataErrors .= validade_input($data["fullname_tutor"], "name", "Nome completo do encarregado de educação");
+    $dataErrors .= validade_input($data["cellphone"], "phone", "Endereço de e-mail do tutor");
     if (!empty($data["email"])) {
-        $dataErrors .= validade_input($data["email"],"email");
+        $dataErrors .= validade_input($data["email"], "email", "");
     }
 
     if (empty($dataErrors)) { // Dadados válidos
@@ -152,7 +152,7 @@ if (!array_key_exists("state",$_REQUEST)) {
                 <input type='hidden' name='fullname_tutor' value=".$data["fullname_tutor"].">
                 <input type='hidden' name='cellphone' value=".$data["cellphone"].">
                 <input type='hidden' name='email' value=".$data["email"].">
-                <input type='hidden' name='state' value='insertData'>
+                <input type='hidden' name='estado' value='inserir'>
                 <input type='submit' value='Submeter'>
             </form>
 
@@ -162,7 +162,7 @@ if (!array_key_exists("state",$_REQUEST)) {
         echo $dataErrors;
     }
     goBack();
-} elseif ($_REQUEST['state'] == "insertData") {
+} elseif ($_REQUEST['estado'] == "inserir") {
 
     echo "<h3>Dados de registo - inserção</h3>";
 
@@ -189,7 +189,7 @@ if (!array_key_exists("state",$_REQUEST)) {
             <a href='gestao-de-registos'><button>Continuar</button></a>
         ";
     } else {
-        die("ERROR ".$insertChild." <br> ".mysqli_error($sql));
+        die("Erro na Query ".$insertChild." <br> ".mysqli_error($sql));
     }
 } else {
     die("Algum erro aconteceu!");
