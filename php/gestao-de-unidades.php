@@ -2,6 +2,8 @@
 
 //Requer as funções presentes no common.php
 require_once("custom/php/common.php");
+//Requer o css
+require_once("custom/css/ag.css");
 
 $link = connectDB();
 
@@ -40,7 +42,6 @@ if (!verifyCapability('manage_unit_types')) {
                 <th>Ação</th>
             </tr>
          ";
-
             while ($tipo_de_unidade_rows = mysqli_fetch_assoc($tipo_de_unidade)) {
 
                 //query dos subitems associados aos tipos de subitem, bem como os itens associados aos subitens
@@ -50,7 +51,7 @@ if (!verifyCapability('manage_unit_types')) {
                 //criação das rows que vão conter a informação 
                 echo "
                 <tr>
-                    <td>" . $tipo_de_unidade_rows['id'] . "</td>
+                    <td class='id'>" . $tipo_de_unidade_rows['id'] . "</td>
                     <td>" . $tipo_de_unidade_rows['name'] . "</td>
                     <td>
                     ";
@@ -68,31 +69,38 @@ if (!verifyCapability('manage_unit_types')) {
 
             echo "<h3>Gestão de unidades - introdução</h3>";
 
-            echo "
-            <form>
-                Nome: <input type='text' name=tipo></br>
-                <input type='hidden' name='estado' value='inserir'>
-                <input type='submit'>
-            </form>
-        ";
+            //verificação do form de inserção de um novo tipo de unidade, não pode ter valores nulos
+            echo "<form>";
+            echo "Nome: <input type='text' id = 'name' name=tipo></br>";
+            echo "</br>";
+            echo "<input type='hidden' name='estado' value='inserir'>";
+            echo "<input type='submit'>";
+            echo "</form>";
         }
 
         //Código a executar quando o Estado é "inserir"    
     } elseif ($_REQUEST['estado'] == "inserir") {
 
-        echo "<h3>Gestão de unidades - inserção</h3>";
+        echo "<h3>";
+        echo "Gestão de unidades - inserção";
+        echo "</h3>";
 
         $tipo = $_REQUEST['tipo'];
 
         //query de inserção de um novo tipo de unidade
         $query_inserir_tipo_de_unidade = "INSERT INTO subitem_unit_type (name) VALUES ('" . $tipo . "')";
-        $inserir_tipo_de_unidade = mysqli_query($link, $query_inserir_tipo_de_unidade);
 
-        if (!$inserir_tipo_de_unidade) {
-            echo "<p>Erro ao inserir o tipo de unidade</p>";
+        if (!$tipo) {
+            echo "<p>";
+            echo "Não pode inserir valores nulos";
+            echo "</p>";
         } else {
-            echo "<p>Tipo de unidade inserido com sucesso</p>";
+            $inserir_tipo_de_unidade = mysqli_query($link, $query_inserir_tipo_de_unidade);
+
+            echo "<p>";
+            echo "Tipo de unidade inserido com sucesso";
+            echo "</p>";
         }
+        goBack();
     }
-    goBack();
 }
