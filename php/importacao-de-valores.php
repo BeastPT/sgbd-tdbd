@@ -1,9 +1,9 @@
 <?php
 require_once("custom/php/common.php");
-//require 'vendor/autoload.php';
+require 'vendor/autoload.php';
 
-//use PhpOffice\PhpSpreadsheet\Spreadsheet;
-//use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 function r($var){
     echo '<pre>';
@@ -108,10 +108,13 @@ if (!array_key_exists("estado", $_REQUEST)) {
     echo "<tr>".$fLine."</tr><tr>".$sLine."</tr><tr>".$tLine."</tr>";
     echo "</table><br>";
     echo "Deverá copiar estas linhas para um ficheiro excel e introduzir os valores a importar, sendo que, no caso dos subitens enum, deverá constar um 0 quando esse valor permitido não se aplique à instância em causa e um 1 quando esse valor se aplica.
-    <br> O ficheiro deve estar em /Applications/XAMPP/xamppfiles/htdocs/WP/wordpress/NOME_DO_FICHEIRO, sendo o nome import_to_insert.xlsx.
+    <br> O ficheiro deve estar em /opt/lampp/htdocs/sgbd/NOME_DO_FICHEIRO, sendo o nome import_to_insert.xlsx.
     <br> <a href='importacao-de-valores?estado=insercao'><button>Carregar ficheiro</button></a><br><br>";
     goBack();
 } elseif ($_REQUEST['estado'] == "insercao") {
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("import_to_insert.xlsx");
+    $arraySheet = $spreadsheet->getActiveSheet()->toArray();
+    r($arraySheet);
     echo "<br>Importação realizada!<br>
     <a href='importacao-de-valores'><button>Inicio</button></a><br><br>";
     goBack();
