@@ -28,7 +28,7 @@ function connectDB() {
 
     return $connection;
 }
-
+global $sql;
 $sql = connectDB();
 
 function get_enum_values($table, $column )

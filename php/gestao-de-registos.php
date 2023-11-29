@@ -53,7 +53,7 @@ if (!array_key_exists("estado", $_REQUEST)) {
                 
             ";
 
-            $queryItems = "SELECT DISTINCT i.name AS name, i.id as id FROM item AS i, subitem AS si, value AS v WHERE v.subitem_id = si.id AND i.id = si.item_id AND v.child_id = ".$child["id"]." ORDER BY subitem_id ASC";
+            $queryItems = "SELECT DISTINCT i.name AS name, i.id as id FROM item AS i, subitem AS si, value AS v WHERE v.subitem_id = si.id AND i.id = si.item_id AND v.child_id = ".$child["id"]." ORDER BY name ASC";
             $items = mysqli_query($sql, $queryItems);
             while ($item = mysqli_fetch_assoc($items)) {
                 echo "<u>".strtoupper($item["name"]).":</u><br>";
@@ -70,19 +70,27 @@ if (!array_key_exists("estado", $_REQUEST)) {
                     echo "[editar][apagar] - <strong>".$edit["date"]."</strong> (".$edit["author"].") -";
 
                     $queryValues = "
-                    SELECT si.name AS name, v.value AS value, si_type.name AS type
-                    FROM subitem AS si, value AS v, subitem_unit_type AS si_type
+                    SELECT
+                        si.name AS name,
+                        v.value AS value,
+                        si_type_alias.name AS type
+                    FROM
+                        subitem AS si
+                    INNER JOIN
+                        value AS v ON si.id = v.subitem_id
+                    LEFT JOIN
+                        subitem_unit_type AS si_type_alias ON si.unit_type_id = si_type_alias.id
                     WHERE
                         v.date = '".$edit["date"]."' AND
                         si.item_id = '".$item["id"]."' AND
-                        si_type.id = si.unit_type_id AND
-                        si.id = v.subitem_id AND
                         v.child_id = '".$child["id"]."'
-                    ORDER BY si.name ASC
+                    ORDER BY
+                        si.name ASC;
                     ";
                     $values = mysqli_query($sql, $queryValues);
                     while ($value = mysqli_fetch_assoc($values)) {
-                        echo " <strong>".$value["name"]."</strong> (".$value["value"]." ".$value["type"].");";
+                        $str = ($value["type"]) ? ($value["value"]." ".$value["type"]) : $value["value"];
+                        echo " <strong>".$value["name"]."</strong> (".$str.");";
                     }
                     echo "<br>";
                 }

@@ -114,7 +114,52 @@ if (!array_key_exists("estado", $_REQUEST)) {
 } elseif ($_REQUEST['estado'] == "insercao") {
     $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("import_to_insert.xlsx");
     $arraySheet = $spreadsheet->getActiveSheet()->toArray();
-    r($arraySheet);
+    $lines = sizeof($arraySheet);
+    $columns = sizeof($arraySheet[0]);
+    $currentChildId = mysqli_real_escape_string($sql, $_SESSION["childId"]);
+    $currentUser = mysqli_real_escape_string($sql, wp_get_current_user()->user_login);
+    $currentDate = date("Y-m-d");
+    $currentTime = date("H:i:s");
+    mysqli_begin_transaction($sql , MYSQLI_TRANS_START_READ_WRITE);
+    $insertQuery = "INSERT INTO `value` (child_id, subitem_id, value, date, time, producer) VALUES ('%d', '%d', '%s', '%s', '%s', '%s')";
+    try {
+        for ($i=0; $i < $columns; $i++) {    
+            $siId = mysqli_real_escape_string($sql, $arraySheet[1][$i]);
+            if ($arraySheet[2][$i] != "") {
+                for ($j=3; $j < $lines; $j++) {
+                    if ($arraySheet[$j][$i] == 1) {
+                        $insertValue = sprintf($insertQuery,
+                            $currentChildId,
+                            $siId,
+                            mysqli_real_escape_string($sql, $arraySheet[2][$i]),
+                            $currentDate,
+                            $currentTime,
+                            $currentUser
+                        );
+                        mysqli_query($sql, $insertValue);
+                    }
+                }
+            } else {
+                for ($j=3; $j < $lines; $j++) { 
+                    $insertValue = sprintf($insertQuery,
+                        $currentChildId,
+                        $siId,
+                        mysqli_real_escape_string($sql, $arraySheet[$j][$i]),
+                        $currentDate,
+                        $currentTime,
+                        $currentUser
+                    );
+                    mysqli_query($sql, $insertValue);
+                }
+            }
+            
+        }
+        mysqli_commit($sql);
+    } catch (mysqli_sql_exception $exception) {
+        mysqli_rollback($sql);
+        echo "<br>Aconteceu algum erro! Importação cancelada!<br>";
+        die($exception);
+    }
     echo "<br>Importação realizada!<br>
     <a href='importacao-de-valores'><button>Inicio</button></a><br><br>";
     goBack();
