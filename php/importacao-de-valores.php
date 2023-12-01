@@ -5,12 +5,6 @@ require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-function r($var){
-    echo '<pre>';
-    print_r($var);
-    echo '</pre>';
-}
-
 if (!verifyCapability("values_import")){
     die("Não tem autorização para aceder a esta página");
 }
@@ -53,11 +47,12 @@ if (!array_key_exists("estado", $_REQUEST)) {
         ";
 
 
-        $queryItems = "SELECT DISTINCT i.name AS name, i.id AS id from item AS i, subitem AS si WHERE
+        $queryItems = "SELECT DISTINCT i.name AS name, i.id AS id FROM item AS i, subitem AS si WHERE
             i.state = 'active' AND
-            i.item_type_id = '".$itemType["id"]."' AND
-            si.item_id = i.id
+            i.item_type_id = '".$itemType["id"]."' 
         ";  
+        //AND
+        //si.item_id = i.id
         $items = mysqli_query($sql, $queryItems);
         while ($item = mysqli_fetch_assoc($items)) {
             $url = "<a href='importacao-de-valores?estado=introducao&crianca=".$_SESSION["childId"]."&item=".$item["id"]."'>[".$item["name"]."]</a>";
@@ -73,43 +68,48 @@ if (!array_key_exists("estado", $_REQUEST)) {
     //1 linha : em cada coluna os formfieldnames dos subitens do item clicado. Para o caso de subitens do tipo enum, repetir nesta linha o nome deste campo o número de vezes igual ao total de valores permitidos
     //2 linha : apresentar os ids dos subitens
     //3 linha : apenas para os subitens com tipo de valor enum, nas respetivas colunas, os valores permitidos.
-    $_SESSION["itemId"] = $_REQUEST["item"];
-
-    $fLine = "";
-    $sLine = "";
-    $tLine = "";
-
-    $querySubItems = "SELECT id, form_field_name AS ffn, value_type AS vt from subitem AS si WHERE
-            si.state = 'active' AND
-            si.item_id = ".$_SESSION["itemId"]."
-        ";
-
-    $subItems = mysqli_query($sql, $querySubItems);
-    while ($subItem = mysqli_fetch_assoc($subItems)) {
-        if ($subItem["vt"] == "enum") {
-            $queryAllowedValues = "SELECT value from subitem_allowed_value AS sav WHERE
-                sav.state = 'active' AND
-                sav.subitem_id = ".$subItem["id"]."
+    $_SESSION["itemId"] = mysqli_real_escape_string($sql, $_REQUEST["item"]);
+    $queryVerifyItem = "SELECT i.name FROM item AS i, subitem AS si WHERE si.item_id = '".$_SESSION["itemId"]."'";
+    $verifyItem = mysqli_query($sql, $queryVerifyItem);
+    if (mysqli_num_rows($verifyItem) == 0) {
+        echo "O item não tem subitems associados <br>";
+    } else {
+        $fLine = "";
+        $sLine = "";
+        $tLine = "";
+    
+        $querySubItems = "SELECT id, form_field_name AS ffn, value_type AS vt FROM subitem AS si WHERE
+                si.state = 'active' AND
+                si.item_id = ".$_SESSION["itemId"]."
             ";
-            $allowedValues = mysqli_query($sql, $queryAllowedValues);
-            while ($allowedVallue = mysqli_fetch_assoc($allowedValues)) {
+    
+        $subItems = mysqli_query($sql, $querySubItems);
+        while ($subItem = mysqli_fetch_assoc($subItems)) {
+            if ($subItem["vt"] == "enum") {
+                $queryAllowedValues = "SELECT value from subitem_allowed_value AS sav WHERE
+                    sav.state = 'active' AND
+                    sav.subitem_id = ".$subItem["id"]."
+                ";
+                $allowedValues = mysqli_query($sql, $queryAllowedValues);
+                while ($allowedVallue = mysqli_fetch_assoc($allowedValues)) {
+                    $fLine .= "<td>".$subItem["ffn"]."</td>";
+                    $sLine .= "<td>".$subItem["id"]."</td>";
+                    $tLine .= "<td>".$allowedVallue["value"]."</td>";
+                }
+            } else {
                 $fLine .= "<td>".$subItem["ffn"]."</td>";
                 $sLine .= "<td>".$subItem["id"]."</td>";
-                $tLine .= "<td>".$allowedVallue["value"]."</td>";
+                $tLine .= "<td></td>";
             }
-        } else {
-            $fLine .= "<td>".$subItem["ffn"]."</td>";
-            $sLine .= "<td>".$subItem["id"]."</td>";
-            $tLine .= "<td></td>";
         }
+        
+        echo "<table>";
+        echo "<tr>".$fLine."</tr><tr>".$sLine."</tr><tr>".$tLine."</tr>";
+        echo "</table><br>";
+        echo "Deverá copiar estas linhas para um ficheiro excel e introduzir os valores a importar, sendo que, no caso dos subitens enum, deverá constar um 0 quando esse valor permitido não se aplique à instância em causa e um 1 quando esse valor se aplica.
+        <br> O ficheiro deve estar em /opt/lampp/htdocs/sgbd/NOME_DO_FICHEIRO, sendo o nome import_to_insert.xlsx.
+        <br> <a href='importacao-de-valores?estado=insercao'><button>Carregar ficheiro</button></a><br><br>";
     }
-    
-    echo "<table>";
-    echo "<tr>".$fLine."</tr><tr>".$sLine."</tr><tr>".$tLine."</tr>";
-    echo "</table><br>";
-    echo "Deverá copiar estas linhas para um ficheiro excel e introduzir os valores a importar, sendo que, no caso dos subitens enum, deverá constar um 0 quando esse valor permitido não se aplique à instância em causa e um 1 quando esse valor se aplica.
-    <br> O ficheiro deve estar em /opt/lampp/htdocs/sgbd/NOME_DO_FICHEIRO, sendo o nome import_to_insert.xlsx.
-    <br> <a href='importacao-de-valores?estado=insercao'><button>Carregar ficheiro</button></a><br><br>";
     goBack();
 } elseif ($_REQUEST['estado'] == "insercao") {
     $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("import_to_insert.xlsx");

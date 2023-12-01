@@ -24,12 +24,6 @@ function validade_input($data, $type, $field) {
     }
 }
 
-function r($var){
-    echo '<pre>';
-    print_r($var);
-    echo '</pre>';
-}
-
 if (!verifyCapability("manage_records")){
     die("Não tem autorização para aceder a esta página");
 }

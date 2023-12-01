@@ -1,13 +1,6 @@
 <?php
 require_once("custom/php/common.php");
 
-
-function r($var){
-    echo '<pre>';
-    print_r($var);
-    echo '</pre>';
-}
-
 if (!verifyCapability("manage_allowed_values")){
     die("Não tem autorização para aceder a esta página");
 }
