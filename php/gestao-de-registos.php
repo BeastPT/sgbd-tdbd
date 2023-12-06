@@ -11,10 +11,10 @@ function validade_input($data, $type, $field) {
         }
     } elseif($type == "date") {
         $time = strtotime($data);
-        if (!preg_match("/^([2-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", $data) || !$time || $time<(-1580688000))
+        if (!preg_match("/^([2-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", $data) || !$time || $time<(946684800000)) // 946684800000 = 2000-01-01
             return "Data inválida no campo <strong>'$field'</strong>.<br>";
     } elseif($type == "email") {
-        if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($data, FILTER_VALIDATE_EMAIL) || !preg_match("/^[^\s@]+@[^\s@]+\.[^\s@]+$/", $data)) {
             return "E-mail em formato inválido no campo <strong>'$field'</strong>.<br>";
         }
     } elseif($type == "phone") { // verificar melhor
@@ -102,18 +102,25 @@ if (!array_key_exists("estado", $_REQUEST)) {
     echo "<h3>Dados de registo - introdução</h3>";
     echo "<br><p>* Campos obrigatórios<p>";
 
+    wp_enqueue_script( 'my-script', get_bloginfo( 'wpurl' ) . '/custom/js/gestao-de-registos.js', array ( 'jquery' ), 1.1, true);
+    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateForm(event)'" : "";
     echo "
-        <form method='post' action='".$current_page."'.>
+        <form method='post' action='".$current_page."' ".$clientSideVerification."> 
             <label for='fullname_child'>Nome completo: </label>*<br>
             <input id ='fullname_child' type='text' name='fullname_child'><br>
+            <span id='fullname_childError'>ASDASDASDASDAS</span>
             <label for='birthdate'>Data de Nascimento (AAAA-MM-DD): </label>*<br>
             <input id ='birthdate' type='text' name='birthdate' placeholder='AAAA-MM-DD'><br>
+            <span id='birthdateError'>test</span>
             <label for='fullname_tutor'>Nome completo do encarregado de educação: </label>*<br>
             <input id ='fullname_tutor' type='text' name='fullname_tutor'><br>
+            <span id='fullname_tutorError'></span>
             <label for='cellphone'>Telefone do encarregado de educação (9 dígitos): </label>*<br>
             <input id ='cellphone' type='text' name='cellphone' size='9'><br>
+            <span id='cellphoneError'></span>
             <label for='email'>Endereço de e-mail do tutor: </label><br>
             <input id ='email' type='text' name='email' placeholder='example@mail.com'><br>
+            <span id='emailError'></span>
             <input type='hidden' name='estado' value='validar'>
             <input type='submit' value='Submeter'>
         </form>
