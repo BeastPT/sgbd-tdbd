@@ -102,25 +102,25 @@ if (!array_key_exists("estado", $_REQUEST)) {
     echo "<h3>Dados de registo - introdução</h3>";
     echo "<br><p>* Campos obrigatórios<p>";
 
-    wp_enqueue_script( 'my-script', get_bloginfo( 'wpurl' ) . '/custom/js/gestao-de-registos.js', array ( 'jquery' ), 1.1, true);
-    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateForm(event)'" : "";
+    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateForm(this)'" : "";
+    //action='".$current_page."' 
     echo "
-        <form method='post' action='".$current_page."' ".$clientSideVerification."> 
-            <label for='fullname_child'>Nome completo: </label>*<br>
+        <form method='post' ".$clientSideVerification." id='registosForm'> 
+            <label for='fullname_child'>Nome completo: </label>* 
+            <span class='fieldError' id='fullname_childError'></span>
             <input id ='fullname_child' type='text' name='fullname_child'><br>
-            <span id='fullname_childError'>ASDASDASDASDAS</span>
-            <label for='birthdate'>Data de Nascimento (AAAA-MM-DD): </label>*<br>
+            <label for='birthdate'>Data de Nascimento (AAAA-MM-DD): </label>* 
+            <span class='fieldError' id='birthdateError'></span>
             <input id ='birthdate' type='text' name='birthdate' placeholder='AAAA-MM-DD'><br>
-            <span id='birthdateError'>test</span>
-            <label for='fullname_tutor'>Nome completo do encarregado de educação: </label>*<br>
+            <label for='fullname_tutor'>Nome completo do encarregado de educação: </label>* 
+            <span class='fieldError' id='fullname_tutorError'></span>
             <input id ='fullname_tutor' type='text' name='fullname_tutor'><br>
-            <span id='fullname_tutorError'></span>
-            <label for='cellphone'>Telefone do encarregado de educação (9 dígitos): </label>*<br>
+            <label for='cellphone'>Telefone do encarregado de educação (9 dígitos): </label>* 
+            <span class='fieldError' id='cellphoneError'></span>
             <input id ='cellphone' type='text' name='cellphone' size='9'><br>
-            <span id='cellphoneError'></span>
-            <label for='email'>Endereço de e-mail do tutor: </label><br>
+            <label for='email'>Endereço de e-mail do tutor: </label> 
+            <span class='fieldError' id='emailError'></span>
             <input id ='email' type='text' name='email' placeholder='example@mail.com'><br>
-            <span id='emailError'></span>
             <input type='hidden' name='estado' value='validar'>
             <input type='submit' value='Submeter'>
         </form>
@@ -205,3 +205,5 @@ if (!array_key_exists("estado", $_REQUEST)) {
 }
 
 ?>
+
+<script src="/sgbd/custom/js/gestao-de-registos.js"> </script>

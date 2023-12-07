@@ -53,9 +53,12 @@ if (!array_key_exists("estado", $_REQUEST)) {
     echo "<h3>Gestão de valores permitidos - introdução</h3>";
     echo "<br><p>* Obrigatório<p>";
 
+    //action='".$current_page."'
+    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateForm(this)'" : "";
     echo "
-        <form method='post' action='".$current_page."'.>
-            <label for='value'>Valor: </label>*<br>
+        <form method='post' ".$clientSideVerification.">
+            <label for='value'>Valor: </label>*
+            <span class='fieldError' id='valueError'></span>
             <input id ='value' type='text' name='value'><br>
             <input type='hidden' name='estado' value='inserir'>
             <input type='submit' value='Inserir valor permitido'>
@@ -87,5 +90,6 @@ if (!array_key_exists("estado", $_REQUEST)) {
 } else {
     die("Algum erro aconteceu!");
 }
-
 ?>
+
+<script src="/sgbd/custom/js/gestao-de-valores-permitidos.js"> </script>
