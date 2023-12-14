@@ -9,6 +9,32 @@ if (!verifyCapability("values_import")){
     die("Não tem autorização para aceder a esta página");
 }
 
+function r($var){
+    echo '<pre>';
+    print_r($var);
+    echo '</pre>';
+}
+
+function isValueAllowed($value, $allowed) {
+    $vType = gettype($value);
+
+    if ($allowed == "int") {
+        return is_numeric($value) && (intval($value) == $value);
+    }
+
+    if ($allowed == "double") {
+        return is_numeric($value) && (floatval($value) == $value);
+    }
+
+    if ($allowed == "boolean") {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
+    }
+
+    if ($allowed == "text") return $vType == "string";
+
+    return $vType == $allowed;
+}
+
 if (!array_key_exists("estado", $_REQUEST)) {
     echo "<h3>Importação de Valores - escolher criança</h3>";
 
@@ -77,7 +103,7 @@ if (!array_key_exists("estado", $_REQUEST)) {
         $fLine = "";
         $sLine = "";
         $tLine = "";
-    
+        $excelTab = array(array(), array(), array(), array());
         $querySubItems = "SELECT id, form_field_name AS ffn, value_type AS vt FROM subitem AS si WHERE
                 si.state = 'active' AND
                 si.item_id = ".$_SESSION["itemId"]."
@@ -92,17 +118,26 @@ if (!array_key_exists("estado", $_REQUEST)) {
                 ";
                 $allowedValues = mysqli_query($sql, $queryAllowedValues);
                 while ($allowedVallue = mysqli_fetch_assoc($allowedValues)) {
+                    array_push($excelTab[0], $subItem["vt"]);
                     $fLine .= "<td>".$subItem["ffn"]."</td>";
+                    array_push($excelTab[1], $subItem["ffn"]);
                     $sLine .= "<td>".$subItem["id"]."</td>";
+                    array_push($excelTab[2], $subItem["id"]);
                     $tLine .= "<td>".$allowedVallue["value"]."</td>";
+                    array_push($excelTab[3], $allowedVallue["value"]);
                 }
             } else {
+                array_push($excelTab[0], $subItem["vt"]);
                 $fLine .= "<td>".$subItem["ffn"]."</td>";
+                array_push($excelTab[1], $subItem["ffn"]);
                 $sLine .= "<td>".$subItem["id"]."</td>";
+                array_push($excelTab[2], $subItem["id"]);
                 $tLine .= "<td></td>";
+                array_push($excelTab[3], "");
             }
         }
         
+        $_SESSION["excelTable"] = $excelTab;
         echo "<table>";
         echo "<tr>".$fLine."</tr><tr>".$sLine."</tr><tr>".$tLine."</tr>";
         echo "</table><br>";
@@ -113,7 +148,7 @@ if (!array_key_exists("estado", $_REQUEST)) {
     goBack();
 } elseif ($_REQUEST['estado'] == "insercao") {
     $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("import_to_insert.xlsx");
-    $arraySheet = $spreadsheet->getActiveSheet()->toArray();
+    $arraySheet = $spreadsheet->getActiveSheet()->toArray(); // $arraySheet[linhas][colunas]
     $lines = sizeof($arraySheet);
     $columns = sizeof($arraySheet[0]);
     $currentChildId = mysqli_real_escape_string($sql, $_SESSION["childId"]);
@@ -122,9 +157,10 @@ if (!array_key_exists("estado", $_REQUEST)) {
     $currentTime = date("H:i:s");
     mysqli_begin_transaction($sql , MYSQLI_TRANS_START_READ_WRITE);
     $insertQuery = "INSERT INTO `value` (child_id, subitem_id, value, date, time, producer) VALUES ('%d', '%d', '%s', '%s', '%s', '%s')";
+    $invalidValue = false;
     try {
         for ($i=0; $i < $columns; $i++) {    
-            $siId = mysqli_real_escape_string($sql, $arraySheet[1][$i]);
+            $siId = $_SESSION["excelTable"][2][$i];
             if ($arraySheet[2][$i] != "") {
                 for ($j=3; $j < $lines; $j++) {
                     if ($arraySheet[$j][$i] == 1) {
@@ -141,6 +177,10 @@ if (!array_key_exists("estado", $_REQUEST)) {
                 }
             } else {
                 for ($j=3; $j < $lines; $j++) { 
+                    if (!isValueAllowed($arraySheet[$j][$i], $_SESSION["excelTable"][0][$i])) {
+                        $invalidValue = true;
+                        break;
+                    }
                     $insertValue = sprintf($insertQuery,
                         $currentChildId,
                         $siId,
@@ -152,13 +192,22 @@ if (!array_key_exists("estado", $_REQUEST)) {
                     mysqli_query($sql, $insertValue);
                 }
             }
-            
+            if ($invalidValue) break;
         }
-        mysqli_commit($sql);
+        if (!$invalidValue) {
+            mysqli_commit($sql);
+        } else {
+            echo "<br>Valores inválidos foram inseridos! Importação cancelada!<br>";
+            mysqli_rollback($sql);
+            goBack();
+            die();
+        }
     } catch (mysqli_sql_exception $exception) {
         mysqli_rollback($sql);
         echo "<br>Aconteceu algum erro! Importação cancelada!<br>";
-        die($exception);
+        echo $exception;
+        goBack();
+        die();
     }
     echo "<br>Importação realizada!<br>
     <a href='importacao-de-valores'><button>Inicio</button></a><br><br>";
@@ -166,5 +215,6 @@ if (!array_key_exists("estado", $_REQUEST)) {
 } else {
     die("Algum erro aconteceu!");
 }
+
 
 ?>
