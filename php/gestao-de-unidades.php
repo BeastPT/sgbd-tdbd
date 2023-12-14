@@ -60,7 +60,10 @@ if (!verifyCapability('manage_unit_types')) {
                 }
                 echo  "
                     </td>
-                    <td>[editar][apagar]</td>
+                    <td>
+                        <a href='http://localhost/sgbd/edicao-de-dados/'>[editar]</a>
+                        <a href='http://localhost/sgbd/edicao-de-dados/'>[apagar]</a>
+                    </td>
                 </tr>
 
             ";
@@ -98,7 +101,7 @@ if (!verifyCapability('manage_unit_types')) {
             $inserir_tipo_de_unidade = mysqli_query($link, $query_inserir_tipo_de_unidade);
 
             echo "<p>";
-            echo "Tipo de unidade inserido com sucesso";
+            echo "Inseriu os dados de novo tipo de unidade com sucesso";
             echo "</p>";
         }
         goBack();
