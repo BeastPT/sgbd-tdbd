@@ -1,4 +1,16 @@
+<style>
 .fieldError {
     color: red;
     font-weight: bold;
 }
+
+th {
+    background-color: #264078;
+    color: white;
+}
+.id{
+    background-color: #506490;
+    color: white;
+}
+
+</style>

@@ -1,5 +1,6 @@
 <?php
 require_once("custom/php/common.php");
+require_once("custom/css/ag.css");
 require 'vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -61,7 +62,14 @@ if (!array_key_exists("estado", $_REQUEST)) {
         echo "</table>";
     }
 } elseif ($_REQUEST['estado'] == "escolheritem") {
-    $queryItemTypes = "SELECT DISTINCT it.name AS name, it.id AS id from item_type AS it, item AS i WHERE i.state = 'active' AND i.item_type_id = it.id";
+    $queryItemTypes = "
+                    SELECT DISTINCT it.name AS name, it.id AS id
+                    FROM
+                        item_type AS it, item AS i
+                    WHERE
+                        i.state = 'active' AND
+                        i.item_type_id = it.id";
+
     $itemTypes = mysqli_query($sql, $queryItemTypes);
     $_SESSION["childId"] = $_REQUEST["crianca"];
     echo "<ul>";
@@ -73,7 +81,11 @@ if (!array_key_exists("estado", $_REQUEST)) {
         ";
 
 
-        $queryItems = "SELECT DISTINCT i.name AS name, i.id AS id FROM item AS i, subitem AS si WHERE
+        $queryItems = "
+        SELECT DISTINCT i.name AS name, i.id AS id
+        FROM
+            item AS i, subitem AS si
+        WHERE
             i.state = 'active' AND
             i.item_type_id = '".$itemType["id"]."' 
         ";  
@@ -104,17 +116,25 @@ if (!array_key_exists("estado", $_REQUEST)) {
         $sLine = "";
         $tLine = "";
         $excelTab = array(array(), array(), array(), array());
-        $querySubItems = "SELECT id, form_field_name AS ffn, value_type AS vt FROM subitem AS si WHERE
-                si.state = 'active' AND
-                si.item_id = ".$_SESSION["itemId"]."
+        $querySubItems = "
+        SELECT id, form_field_name AS ffn, value_type AS vt
+        FROM
+            subitem AS si
+        WHERE
+            si.state = 'active' AND
+            si.item_id = ".$_SESSION["itemId"]."
             ";
     
         $subItems = mysqli_query($sql, $querySubItems);
         while ($subItem = mysqli_fetch_assoc($subItems)) {
             if ($subItem["vt"] == "enum") {
-                $queryAllowedValues = "SELECT value from subitem_allowed_value AS sav WHERE
-                    sav.state = 'active' AND
-                    sav.subitem_id = ".$subItem["id"]."
+                $queryAllowedValues = "
+                    SELECT value
+                    FROM
+                        subitem_allowed_value AS sav
+                    WHERE
+                        sav.state = 'active' AND
+                        sav.subitem_id = ".$subItem["id"]."
                 ";
                 $allowedValues = mysqli_query($sql, $queryAllowedValues);
                 while ($allowedVallue = mysqli_fetch_assoc($allowedValues)) {
@@ -143,7 +163,9 @@ if (!array_key_exists("estado", $_REQUEST)) {
         echo "</table><br>";
         echo "Deverá copiar estas linhas para um ficheiro excel e introduzir os valores a importar, sendo que, no caso dos subitens enum, deverá constar um 0 quando esse valor permitido não se aplique à instância em causa e um 1 quando esse valor se aplica.
         <br> O ficheiro deve estar em /opt/lampp/htdocs/sgbd/NOME_DO_FICHEIRO, sendo o nome import_to_insert.xlsx.
-        <br> <a href='importacao-de-valores?estado=insercao'><button>Carregar ficheiro</button></a><br><br>";
+        <br> <a href='importacao-de-valores?estado=insercao'> <button>Carregar ficheiro</button> </a>
+        <br>
+        <br>";
     }
     goBack();
 } elseif ($_REQUEST['estado'] == "insercao") {
@@ -210,7 +232,9 @@ if (!array_key_exists("estado", $_REQUEST)) {
         die();
     }
     echo "<br>Importação realizada!<br>
-    <a href='importacao-de-valores'><button>Inicio</button></a><br><br>";
+    <a href='importacao-de-valores'><button>Inicio</button></a>
+    <br>
+    <br>";
     goBack();
 } else {
     die("Algum erro aconteceu!");

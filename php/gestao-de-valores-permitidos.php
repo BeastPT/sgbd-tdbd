@@ -1,5 +1,6 @@
 <?php
 require_once("custom/php/common.php");
+require_once("custom/css/ag.css");
 
 if (!verifyCapability("manage_allowed_values")){
     die("Não tem autorização para aceder a esta página");
@@ -54,7 +55,7 @@ if (!array_key_exists("estado", $_REQUEST)) {
     echo "<br><p>* Obrigatório<p>";
 
     //action='".$current_page."'
-    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateForm(this)'" : "";
+    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateFormGVP(this)'" : "";
     echo "
         <form method='post' ".$clientSideVerification.">
             <label for='value'>Valor: </label>*
@@ -92,4 +93,4 @@ if (!array_key_exists("estado", $_REQUEST)) {
 }
 ?>
 
-<script src="/sgbd/custom/js/gestao-de-valores-permitidos.js"> </script>
+<script src="/sgbd/custom/js/script.js"> </script>

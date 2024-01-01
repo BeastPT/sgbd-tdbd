@@ -1,5 +1,6 @@
 <?php
 require_once("custom/php/common.php");
+require_once("custom/css/ag.css");
 
 function validade_input($data, $type, $field) {
     if (empty($data)) {
@@ -102,7 +103,7 @@ if (!array_key_exists("estado", $_REQUEST)) {
     echo "<h3>Dados de registo - introdução</h3>";
     echo "<br><p>* Campos obrigatórios<p>";
 
-    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateForm(this)'" : "";
+    $clientSideVerification = ($clientsideval) ? "onsubmit='return validateFormGR(this)'" : "";
     //action='".$current_page."' 
     echo "
         <form method='post' ".$clientSideVerification." id='registosForm'> 
@@ -203,7 +204,6 @@ if (!array_key_exists("estado", $_REQUEST)) {
 } else {
     die("Algum erro aconteceu!");
 }
-
 ?>
 
-<script src="/sgbd/custom/js/gestao-de-registos.js"> </script>
+<script src="/sgbd/custom/js/script.js"> </script>
