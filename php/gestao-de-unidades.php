@@ -26,7 +26,6 @@ if (!verifyCapability('manage_unit_types')) {
         $tipo_de_unidade = mysqli_query($link, $query_tipo_de_unidade);
 
         if (mysqli_num_rows($tipo_de_unidade) == 0) {
-
             echo "<p>Não há tipos de unidades</p>";
         } else {
 
@@ -51,8 +50,12 @@ if (!verifyCapability('manage_unit_types')) {
                 //criação das rows que vão conter a informação 
                 echo "
                 <tr>
-                    <td class='id'>" . $tipo_de_unidade_rows['id'] . "</td>
-                    <td>" . $tipo_de_unidade_rows['name'] . "</td>
+                    <td class='id'>
+                        " . $tipo_de_unidade_rows['id'] . "
+                    </td>
+                    <td>
+                        " . $tipo_de_unidade_rows['name'] . "
+                    </td>
                     <td>
                     ";
                 while ($subitens_rows = mysqli_fetch_assoc($subitens)) {
@@ -61,11 +64,14 @@ if (!verifyCapability('manage_unit_types')) {
                 echo  "
                     </td>
                     <td>
-                        <a href='http://localhost/sgbd/edicao-de-dados/'>[editar]</a>
-                        <a href='http://localhost/sgbd/edicao-de-dados/'>[apagar]</a>
+                        <a href='edicao-de-dados?estado=editar&comp=gestao-de-unidades&id=" . $tipo_de_unidade_rows['id'] . "'>
+                            [editar]
+                        </a>
+                        <a href='edicao-de-dados?estado=apagar&comp=gestao-de-unidades&id=" . $tipo_de_unidade_rows['id'] . "'>
+                            [apagar]
+                        </a>
                     </td>
                 </tr>
-
             ";
             }
             echo "</table>";
@@ -80,7 +86,6 @@ if (!verifyCapability('manage_unit_types')) {
             echo "<input type='submit'>";
             echo "</form>";
         }
-
         //Código a executar quando o Estado é "inserir"    
     } elseif ($_REQUEST['estado'] == "inserir") {
 
@@ -104,6 +109,8 @@ if (!verifyCapability('manage_unit_types')) {
             echo "Inseriu os dados de novo tipo de unidade com sucesso";
             echo "</p>";
         }
-        goBack();
+        echo "
+            <a href='gestao-de-unidades'>Continuar</a>
+       ";
     }
 }

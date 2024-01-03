@@ -132,7 +132,30 @@ if (!verifyCapability('manage_subitems')) {
                     } else {
                         echo "<td>Inativo</td>";
                     }
-                    echo "<td>[editar][apagar]</td>
+                    echo "
+                        <td>
+                            <a href='edicao-de-dados?estado=editar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
+                                [editar]
+                            </a>
+                        ";
+                    if ($subitens_rows['state'] == 'active') {
+                        echo "
+                                <a href='edicao-de-dados?estado=ativar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
+                                    [ativar]
+                                </a>
+                            ";
+                    } else {
+                        echo "
+                                <a href='edicao-de-dados?estado=desativar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
+                                    [desativar]
+                                </a>
+                            ";
+                    }
+                    echo  "
+                            <a href='edicao-de-dados?estado=apagar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
+                                [apagar]
+                            </a>
+                        </td>
                     </tr>";
                 }
             }
