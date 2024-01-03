@@ -3,7 +3,6 @@
     color: red;
     font-weight: bold;
 }
-
 th {
     background-color: #264078;
     color: white;
@@ -12,5 +11,8 @@ th {
     background-color: #506490;
     color: white;
 }
-
+.ative{
+    background-color: #da1010;
+    color: white;
+}
 </style>
