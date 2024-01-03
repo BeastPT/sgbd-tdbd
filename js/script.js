@@ -1,3 +1,4 @@
+// gestao-de-registos
 function validateFormGR(event) {
     let output = true;
     let params = {
@@ -60,18 +61,7 @@ function validateFormGR(event) {
     return output;
 }
 
-function validateFormGVP(event) {
-    let output = true;
-    let field = document.getElementById("value").value.trim();
-
-    if (field == "") {
-        document.getElementById("valueError").innerHTML = "Campo é obrigatório!"
-        output = false;
-    }
-
-    return output;
-}
-
+// gestao de valores permitidos
 function validateFormGVP(event) {
     let output = true;
     let field = document.getElementById("value").value.trim();
