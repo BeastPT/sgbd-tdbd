@@ -32,7 +32,7 @@ if ($_GET['comp'] == 'gestao-de-unidades') {
                         " . $tipo_de_unidade_row['id'] . "
                     </td>
                     <td> 
-                        <input type='text' id='name' value='" . $tipo_de_unidade_row['name'] . "'>
+                        <input type='text' name='nome' value='" . $tipo_de_unidade_row['name'] . "'>
                     </td>
                 </tr>
             </table>
@@ -73,13 +73,15 @@ if ($_GET['comp'] == 'gestao-de-unidades') {
         ";
             goBack();
         } elseif ($_GET['estado'] == 'editado') {
-            $name = $_GET['name'];
+            $name = $_GET['nome'];
             $query_editar_dados = "UPDATE subitem_unit_type SET name = '$name' WHERE id = $id";
-            $editar_dados = mysqli_query($link, $query_editar_dados);
-            if (!$editar_dados) {
-                echo "<p>Não pode introduzir dados nulos</p>";
+            if (!$name) {
+                echo "<p>Não pode introduzir valores nulos</p>";
                 goBack();
+                echo "</br>";
             } else {
+                $editar_dados = mysqli_query($link, $query_editar_dados);
+
                 echo "<p>Edições realizadas com sucesso</p>";
             }
             echo "
