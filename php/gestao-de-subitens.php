@@ -15,7 +15,7 @@ function concatenate($nome_item, $id_item, $nome_subitem)
     $nome_subitem = str_replace(" ", "_", $nome_subitem);
 
     //concatenação dos 3 parametros com - entre eles
-    $concatenated = $nome_item . "-" . $id_item . "-" . $nome_subitem;
+    $concatenated = $nome_item . "-" . $id_item + 1 . "-" . $nome_subitem;
     return $concatenated;
 }
 
@@ -140,14 +140,14 @@ if (!verifyCapability('manage_subitems')) {
                         ";
                     if ($subitens_rows['state'] == 'active') {
                         echo "
-                                <a href='edicao-de-dados?estado=ativar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
-                                    [ativar]
+                                <a href='edicao-de-dados?estado=desativar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
+                                    [desativar]
                                 </a>
                             ";
                     } else {
                         echo "
-                                <a href='edicao-de-dados?estado=desativar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
-                                    [desativar]
+                                <a href='edicao-de-dados?estado=ativar&comp=gestao-de-subitens&id=" . $subitens_rows['id'] . "'>
+                                    [ativar]
                                 </a>
                             ";
                     }
@@ -271,7 +271,12 @@ if (!verifyCapability('manage_subitems')) {
             $unit_type_id = mysqli_query($link, $query_unit_type_id);
             $unit_type_id_rows = mysqli_fetch_assoc($unit_type_id);
 
-            $form_field_name = concatenate($item, $item_id_rows['id'], $subitens_name);
+            //query para o ultimo id dos subitens na base de dados
+            $query_ultimo_id = "SELECT id FROM subitem ORDER BY id DESC LIMIT 1";
+            $ultimo_id = mysqli_query($link, $query_ultimo_id);
+            $ultimo_id_rows = mysqli_fetch_assoc($ultimo_id);
+
+            $form_field_name = concatenate($item, $ultimo_id_rows['id'], $subitens_name);
 
             //query de inserção de um novo subitem
             $query_inserir_subitem = "INSERT INTO subitem (name, value_type, item_id, form_field_name, form_field_type, unit_type_id, form_field_order, mandatory, state) 
