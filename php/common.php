@@ -1,6 +1,8 @@
 <?php
-global $current_page;
+global $current_page, $sql, $clientsideval;
 $current_page = get_site_url() . '/' . basename(get_permalink());
+$clientsideval = 1;
+$sql = connectDB();
 
 function test_input($data)
 {
@@ -32,7 +34,6 @@ function connectDB()
 
     return $connection;
 }
-
 
 function get_enum_values($table, $column)
 {
